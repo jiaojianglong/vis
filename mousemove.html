@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <meta charset="UTF-8">
+ <title>js获取鼠标位置</title>
+ <script type="text/javascript">
+document.onmousemove = function(e){
+ var loc = "当前位置 x:"+e.pageX+",y:"+e.pageY
+ document.getElementById("point-loc").innerHTML = loc;
+}
+ </script>
+</head>
+<body>
+<div id="point-loc"></div>
+</body>
+</html>

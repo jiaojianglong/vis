@@ -1,0 +1,238 @@
+<html>
+<head>
+    <script type="text/javascript" src="vis-4.20.1/dist/vis.js"></script>
+   <!--<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>-->
+  <link href="vis-4.20.1/dist/vis.css" rel="stylesheet" type="text/css" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style type="text/css">
+        #mynetwork {
+            width: 1000px;
+            height: 600px;
+            border: 1px solid lightgray;
+        }
+        #bianji{
+            display:none;
+            position:absolute;
+            left:100px;
+            top:100px;
+            z-index: 100000;
+        }
+    </style>
+</head>
+<body>
+<div id="mynetwork"></div>
+<div id="bianji">
+    <div onclick='button()' style="display: inline-block"><img src="img/editIcon.png"/>编辑</div>
+    <div onclick="deleteNode()" style="display: inline-block"><img src="img/acceptDeleteIcon.png"/>删除</div> </div>
+<script type="text/javascript">
+    var bianji = document.getElementById('bianji');
+    var mynetwork = document.getElementById('mynetwork');
+    var x =  mynetwork.clientWidth / 2 + 50;
+    var y =- (mynetwork.clientHeight / 2) ;
+    var step = 80;
+    var nodes_list = [
+        {id: 1, label: 'server', physics:false,x:x,y:y,group:'server'},
+        {id: 2, label: 'router', physics:false,x:x,y:y+step,group:'router'},
+        {id: 3, label: 'switch', physics:false,x:x,y:y+2*step,group:'switch'},
+        {id: 4, label: 'laptop', physics:false,x:x,y:y+3*step,group:'laptop'},
+        {id: 5, label: 'cloud', physics:false,x:x,y:y+4*step,group:'cloud'},
+        {id: 6, label: 'AddEdge',fixed:true, physics:false,x:x,y:y+5*step,group:'cloud'},
+
+
+        {id: 11, label: 'vister',group:'vister', physics:true},
+        {id: 12, label: 'desktop',group:'desktop', physics:true},
+    ]
+    // create an array with nodes
+    var nodes = new vis.DataSet(nodes_list);
+
+    // create an array with edges
+    var edges_list = [
+        {id:22,lable:'Edge 1',from:11,to:12}
+
+    ]
+    var edges = new vis.DataSet(edges_list);
+
+    // create a network
+    var container = document.getElementById('mynetwork');
+
+    // provide the data in the vis format
+    var data = {
+        nodes: nodes,
+        edges: edges
+    };
+    var options = {
+        interaction:{
+            zoomView:false,
+              dragView:false,
+            hover:true,
+          },
+        manipulation:{
+            enabled:false,
+            initiallyActive:false,
+        },
+        groups:{
+            server:{
+                shape:'circularImage',
+                image:'img/server.png',
+            },
+            router:{
+                shape:'circularImage',
+                image:'img/router.png'
+            },
+            switch:{
+                shape:'circularImage',
+                image:'img/switch.png'
+            },
+            laptop:{
+                shape:'circularImage',
+                image:'img/laptop.png'
+            },
+            cloud:{
+                shape:'circularImage',
+                image:'img/cloud.png'
+            },
+            vister:{
+                shape:'circularImage',
+                image:'img/visitor.png'
+            },
+            desktop:{
+                shape:'circularImage',
+                image:'img/desktop.png'
+            }
+        },
+        nodes:{
+            borderWidth:2,
+            color:{
+                border:'#666',
+                background:'#fff'
+            },
+            shapeProperties:{
+                useBorderWithImage:true,
+            },
+            chosen:{
+                node:function(values, id, selected, hovering) {
+                        values.color = '#eee';
+                        values.borderWidth = 4;
+                }
+            }
+        },
+        edges: {
+            color: 'gray',
+            width: 2,
+            physics: true,
+            smooth: {
+                enabled: true,
+                type: "dynamic",
+                roundness: 0.1
+            }
+
+        },
+
+    };
+
+    // initialize your network!
+
+    var network = new vis.Network(container, data, options);
+//    network.on('release',not_move());
+    window.onload = function(){
+        setTimeout(function(){not_move()},100);
+    };
+    var button_data =[
+        {id:1, label:'server',group:'server'},
+        {id:2, label:'router',group:'router'},
+        {id:3, label:'switch',group:'switch'},
+        {id:4, label:'laptop',group:'laptop'},
+        {id:5, label:'cloud',group:'cloud'}
+    ];
+
+    function not_move(){
+        network.moveTo({
+            position: {x:0, y:0},
+            scale: 1.00,
+            offset: {x:0, y: 0},
+            animation: false
+        });
+        var canvasToMOD_x = network.canvas.canvasToDOM({x: network.getPositions()['1']['x'], y: network.getPositions()['1']['y']})['x'];
+        var canvasToMOD_y = network.canvas.canvasToDOM({x: network.getPositions()['1']['x'], y: network.getPositions()['1']['y']})['y'];
+        network.moveTo({
+            position: {x:-950, y:-50},
+            scale: 1.00,
+            offset: {x:-canvasToMOD_x, y: -canvasToMOD_y},
+            animation: false
+        });
+    }
+    network.on('dragStart',function(data){drag(data)});
+    network.on('click',function(data){addedge(data)});
+    network.on('hoverNode',function(data){
+        setTimeout(function(){
+            var mouse_at_node_id = network.getNodeAt({x:window.mousePosition['x'],y:window.mousePosition['y']});
+            if(data['node'] === mouse_at_node_id){
+                window.hoverNode = data['node'];
+                var node_position = network.getPositions()[data['node']];
+                bianji.style.display ='block';
+                bianji.style.left =network.canvas.canvasToDOM(node_position)['x']-40;
+                bianji.style.top =network.canvas.canvasToDOM(node_position)['y']-40;
+                network.once('blurNode',function(){bianji.style.display = 'none';})
+            }
+        },800)});
+    window.num = 1000;
+    function drag(data){
+        var node_id = data.nodes[0];
+        var position = network.getPositions();
+        if (get_option(node_id,'id')){
+            network.body.data.nodes.getDataSet().add(
+                {id:++window.num,x:position[node_id]['x'],y:position[node_id]['y'],group:get_option(node_id,'group'),label:get_option(node_id,'label'),physics:false,});
+            set_option_id(node_id,window.num);
+            network.once('dragEnd',function(data){dragend(data)})
+        }
+
+    }
+
+    function dragend(data){
+        var node_id = data.nodes[0];
+        var label = prompt('节点名称：');
+        network.body.data.nodes.getDataSet().update({id:node_id,group:get_option(node_id,'group'),label:label,physics:true,})
+
+    }
+    function get_option(id,option){
+        for(var i in button_data){
+            if(button_data[i]['id'] == id){
+                return button_data[i][option]
+            }
+
+        }
+        return false
+    }
+    function set_option_id(oldid,newid){
+        for(var i in button_data){
+            if(button_data[i]['id'] == oldid){
+                button_data[i]['id'] = newid
+            }
+        }
+    }
+    function addedge(data){
+        var node_id = data.nodes[0];
+        if(node_id === 6){
+            network.addEdgeMode()
+        }
+    }
+
+//    window.mousePosition = {x:0,y:0};
+    document.onmousemove = function(e) {
+        window.mousePosition = {x:e.pageX,y:e.pageY};
+    };
+
+
+    function editNode(){
+
+    }
+    function deleteNode(){
+        network.body.data.nodes.getDataSet().remove(window.hoverNode)
+    }
+
+
+
+
+</script>
+</body>
+</html>

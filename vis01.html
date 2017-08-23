@@ -1,0 +1,307 @@
+<html>
+<head>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.20.1/vis.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.20.1/vis.min.css" rel="stylesheet" type="text/css" />
+     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style type="text/css">
+        #mynetwork {
+            width: 1000px;
+            height: 600px;
+            border: 1px solid lightgray;
+        }
+        #weizhi{
+            border: 3px solid white;
+        }
+    </style>
+</head>
+<body>
+<div id="mynetwork"></div>
+<div id="weizhi"></div>
+
+<script type="text/javascript">
+    var weizhi = document.getElementById('weizhi');
+    // create an array with nodes
+    var nodes = new vis.DataSet([
+        {id: 1, label: 'Node 1',group:'mygroup'},
+        {id: 2, label: 'Node 2',group:'mygroup'},
+        {id: 3, label: 'Node 3',fixed:true,x:200,y:200},
+        {id: 4, label: 'Node 4'},
+        {id: 5, label: 'Node 5'}
+    ]);
+
+    // create an array with edges
+    var edges = new vis.DataSet([
+        {id:'1',label:'edge-1',title:'edge-1',from: 1, to: 3},
+        {id:'2',label:'edge-2',title:'edge-2',from: 1, to: 2},
+        {id:'3',label:'edge-3',title:'edge-3',from: 2, to: 4},
+        {id:'4',label:'edge-4',title:'edge-4',from: 2, to: 5}
+    ]);
+
+    // create a network
+    var container = document.getElementById('mynetwork');
+
+    // provide the data in the vis format
+    var data = {
+        nodes: nodes,
+        edges: edges
+    };
+    var options = {
+        configure:{//配置信息
+            enabled :false,//是否显示配置页面
+            filter :'nodes，edges',//显示配置的项 nodes, edges, layout, interaction, manipulation, physics, selection, renderer 可写函数function(option ，path)
+            container :weizhi,//容器 配置页面显示位置
+            showButton :true//是否显示配置页面开关
+        },
+
+        nodes:{
+            borderWidth:3,
+            borderWidthSelected:10,//不管用 选择节点时边框的宽度
+            brokenImage:'10.jpg',//是备份图像的URL。
+            chosen:{
+                node:function(values, id, selected, hovering) {
+                        values.color = 'red';
+                },
+                label:function(values, id, selected, hovering) {
+                        values.color = 'blue';
+                }
+            },
+            color:{
+                border:'red',
+                background:'blue',
+                highlight:{
+                    border:'blue',
+                    backgound:'red',
+                },
+                hover:{
+                    border:'red',
+                    background:'blue',
+                }
+            },
+            fixed:{
+                x:false,
+                y:false,
+            },
+            font:{//同edge
+                color:'red'
+            },
+            heightConstraint:{
+                minimum:30,//节点高度最小值
+                valign:'top'//当字体高度小于节点最小高度时 字体对齐方式
+            },
+            icon:{
+                face:'Ionicons',//和'Ionicons' 'FontAwesome'
+                code:'',
+                size:30,
+                color:'red'
+            },
+            image:{
+                selected:'10.jpg',
+                unselected:'10.jpg',
+            },
+            shape:'image',
+            mass:1,//通过增加节点的质量，可以增加节点的排斥力
+            physics:true,//物理模型开关
+            shadow:{//同edge
+                color:'black',
+                size:5,
+                x:1,
+                y:1
+            },
+            shapeProperties:{
+                useBorderWithImage:false,//image border开关
+                useImageSize:false,//使用图像的大小
+            },
+            size:30,//节点大小
+
+        },
+
+        edges: {//边
+            arrows: {//箭头
+                to: {//箭头出现位置
+                    enabled: false, //箭头开关
+                    scaleFactor: 1, //箭头大小缩放
+                    type: 'arrow'//箭头形状 circle or arrow
+                },
+                middle: {enabled: false, scaleFactor: 1, type: 'arrow'},
+                from: {enabled: false, scaleFactor: 1, type: 'arrow'}
+            },
+            arrowStrikethrough:false,//边线在箭头处停止
+            chosen:{//选择时发生的变化 false不发生变化
+//                edge:function(values, id, selected, hovering) {//values 边的实例 id 边的id，selected true/false
+//                        values.toArrow = true;
+//                        values.color = 'red';
+//                        values.dashes = true;
+//                    },
+//                label:function(values, id, selected, hovering) {//改变标签特性
+//                        values.color = 'blue';
+//                    },
+            },
+            color:{
+                color:'blue',//显示颜色
+                highlight:'red',//选择时的颜色
+                hover:'yellow',//需要在交互模块中启用悬停
+                inherit:'to',//当前三个没有设置时，选择继承方向，‘both’时启用渐变色 true, false, 'from','to','both'
+                opacity:0.7,//设置透明度
+            },
+            dashes:false,//虚线
+//            font:'28px arial red'//字体属性
+            font:{
+                color:'#333',
+                size:14,
+                face:'arial',
+//                background:'red',
+                strokeWidth:0,
+//                strokeColor:'blue',
+                align:'middle',//'horizontal'水平对齐标签,'top','middle','bottom'
+//                vadjust:'10',//向下移动字体，背景不一起移动
+            },
+//            hoverWidth:function(width){return width+1;}//需在交互模块中启用悬停行为，改变边的宽度，
+            hoverWidth:0.5,//乘法运算
+            labelHighlightBold:true,//label选择时变粗，chosen中label设置可覆盖该设置
+            selectionWidth:3,//选择变粗，chosen中edge设置可覆盖该设置
+            length:300,//长度
+            physics:true,//物理模型开关
+            selfReferenceSize:3,//当to和from相同时 圆的半径
+            shadow:{//影子
+                color:'black',
+                size:5,//模糊距离
+                x:1,
+                y:1,
+            },
+            smooth:{//曲线平滑
+                type:'dynamic',//'dynamic', 'continuous', 'discrete', 'diagonalCross', 'straightCross', 'horizontal', 'vertical', 'curvedCW', 'curvedCCW', 'cubicBezier'
+                roundness:0.7,//弯曲程度
+                forceDirection:'horizontal',//'horizontal', 'vertical', 'none' 仅用于cubicBezier曲线
+            }
+        },
+
+        groups:{//组 设置不同的node样式
+            mygroup:{
+                color:{
+                    background:'red'
+                }
+            }
+        },
+
+        interaction:{//交互
+            dragNodes:true,//标签是否可拖拽
+            dragView:true,//视图是否可拖动
+            hideEdgesOnDrag:false,//拖动标签时不绘制边
+            hideNodesOnDrag:false,//拖动时不绘制标签
+            hover:true,//开启悬停模式
+            hoverConnectedEdges:true,//当为真时，将鼠标悬停在一个节点上时，它的连接边被突出显示。
+            keyboard:{
+                speed:{
+                    x:2,//按下键或按导航按钮，视图在x方向移动的速度。
+                    y:2,
+                    zoom:0.02//视图放大或缩小按键或按导航按钮的速度。
+                }
+            },
+            navigationButtons:true,//网络画布上绘制导航按钮
+            selectable:true,//是否可选择
+            selectConnectedEdges:true,//选择节点时相关边线也突出显示
+            tooltipDelay:300,//显示‘title’之前的时间，毫秒
+            ZOOMVIEW:false,//是否可以放大缩小 不管用
+        },
+
+        laylout:{
+            randomSeed:undefined,//还不会
+            improvedLayout:true,//还不会
+            hierarchical:{
+                enabled:false,
+                levelSeparation: 150,//不同层次之间的距离。
+                nodeSpacing: 100,//自由轴上节点之间的最小距离
+                treeSpacing: 2000,//不同树木之间的距离
+                blockShifting: true,//
+                edgeMinimization: true,
+                parentCentralization: true,
+                direction: 'UD',        // UD, DU, LR, RL
+                sortMethod: 'hubsize'   // hubsize, directed。
+            }
+        },
+
+        manipulation:{
+            initiallyActive:true,
+            addNode:function(nodeData,callback){
+                nodeData.label =prompt('节点名称');
+                callback(nodeData);
+            },
+            addEdge: function(edgeData,callback) {
+                        edgeData.label = prompt('连线名称');
+                        if (edgeData.from === edgeData.to) {
+                            var r = confirm("Do you want to connect the node to itself?");
+                            if (r === true) {
+                                callback(edgeData);
+                            }
+                        }
+                        else {
+                            callback(edgeData);
+                        }
+                    },
+            editNode:function(nodeData,callback){
+                nodeData.label = 'hello world';
+                callback(nodeData);
+            },
+            editEdge:function(edgeData,callback){
+                        if (edgeData.from === edgeData.to) {
+                            var r = confirm("Do you want to connect the node to itself?");
+                            if (r === true) {
+                                callback(edgeData);
+                            }
+                        }
+                        else {
+                            callback(edgeData);
+                        }
+            },
+            deleteNode:function(){},
+            deleteEdge:function(){},
+            controlNodeStyle:{//不会 回来看
+                shape:'dot',
+                size:60,
+                color: {
+                    background: 'yellow',
+                    border: '#3c3c3c',
+                    highlight: {
+                        background: '#07f968',
+                        border: '#3c3c3c'
+                    }
+                },
+                borderWidth: 2,
+                borderWidthSelected: 2
+            }
+            },
+
+        physics:{
+            barnesHut:{//重力模型
+                gravitationalConstant:-1000,//节点间的排斥力 越小排斥力越大
+                centralGravity:0.2,//中心吸引力
+                springLength:1,//弹簧剩余长度
+                springConstant:0.04,//弹簧的强度
+                damping:0.5,//阻尼因子0-1
+                avoidOverlap:1,//避免重叠0-1
+            },
+            maxVelocity:50,//最大速度
+            minVelocity:0.2,//一旦达到所有节点的最小速度，我们假设网络已经稳定，仿真停止。
+            solver:'barnesHut',//选择求解器
+            timestep:0.5,
+            adaptiveTimestep:true//自动调节timestep 将上面设置的时间作为最小值
+        }
+
+
+
+    };
+
+    // initialize your network!
+    var network = new vis.Network(container, data, options);
+
+
+
+//      network.setData({nodes:[{id: 1, label: 'Node 1'},{id: 2, label: 'Node 2'}],edges:[{id:'1',from:1,to:2},]})
+//      network.setOptions({configure:{enabled:true}})//更改配置选项
+//      network.canvas.setSize('250','250')//设置画布大小
+//        alert(network.canvas.canvasToDOM({x:250,y:250})['x'])
+//    alert(network.getSeed())
+//    network.addNodeMode()
+</script>
+</body>
+</html>
